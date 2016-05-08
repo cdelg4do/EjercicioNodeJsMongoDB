@@ -19,6 +19,7 @@ var errors_es = {
     "CREATE_PUSHTOKEN_MISSING_PARAMS"   : "No se indicaron todos los parámetros del body para un nuevo token de push",
     "LIST_ADS_DB_ERROR"                 : "Fallo al obtener el listado de anuncios de la BBDD",
     "LIST_ADS_QUERY_ERROR"              : "La query string para el listado de anuncios no es correcta",
+    "UNAUTHORIZED_USER"                 : "Usuario no autorizado",
     "UNKNOWN_ERROR"                     : "Error desconocido"
 };
 
@@ -34,6 +35,7 @@ var errors_en = {
     "CREATE_PUSHTOKEN_MISSING_PARAMS"   : "Some body params for new push token are missing",
     "LIST_ADS_DB_ERROR"                 : "Error fetching advertisements from the database",
     "LIST_ADS_QUERY_ERROR"              : "The query string for listing advertisements is not correct",
+    "UNAUTHORIZED_USER"                 : "Unauthorized user",
     "UNKNOWN_ERROR"                     : "Unknown error"
 };
 

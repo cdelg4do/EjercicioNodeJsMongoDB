@@ -10,6 +10,8 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var Advertisement = mongoose.model('Advertisement');
 
+var jwt = require('jsonwebtoken');
+
 
 // Módulo para enviar respuestas con mensajes de error internacionalizados
 var errors = require('../../../lib/errors');
@@ -38,6 +40,30 @@ var checkQueryString = function (req, res, next)
 };
 
 
+// Comprobación del token de autenticación facilitado por el usuario
+var checkToken = function (req, res, next)
+{
+    console.log('Chequeando token: ', req.query.token);
+
+    // Idioma del cliente (si no se especificó ninguno, por defecto será 'en´)
+    var lang = ( req.query.lang || 'en' );
+    
+
+    jwt.verify(req.query.token, 'elkfbgti4e00t4ortng3035', function(err, decoded) {
+       if (err)
+       {
+           console.log('Se ha producido un error: UNAUTHORIZED_USER');
+           return errors.errorResponse('UNAUTHORIZED_USER', 400, lang, res);
+       }
+
+       // Si no hubo errores, pasamos al siguiente middleware
+        next();
+    });
+};
+
+
+
+
 // Petición GET a /advertisements para listar los anuncios de la BBDD.
 //
 // Primero se invoca a checkQueryString para comprobar los parámetros de la query string,
@@ -48,7 +74,7 @@ var checkQueryString = function (req, res, next)
 // Si la operación se realiza con éxito, devuelve un objeto JSON {success: true, advertisements: [objeto1, objeto2, ...]}
 // Siademás se indicó el parámetro includeTotal=true, , devuelve {success: true, total: <total>, advertisements: [objeto1, objeto2, ...]}
 // y si no, devolverá un JSON con mensaje de error y finaliza
-router.get('/', checkQueryString, function(req, res, next)
+router.get('/', checkQueryString, checkToken, function(req, res, next)
 {
     // Si llegamos hasta aquí, es que la petición incluye los parámetros necesarios
     // así que podemos proceder con el listado
