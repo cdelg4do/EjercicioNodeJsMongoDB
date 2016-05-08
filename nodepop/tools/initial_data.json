@@ -1,0 +1,75 @@
+{
+  "users": [
+    {
+      "name": "Carlos",
+      "email": "carlos@mail.com",
+      "password": "b0bcc62c2e93"
+    },
+    {
+      "name": "Pepe",
+      "email": "pepe@hotmail.es",
+      "password": "b0bcc62c2e93"
+    }
+  ],
+  "advertisements": [
+    {
+      "name": "Bicicleta",
+      "sale": true,
+      "price": 230.15,
+      "photo": "bici.jpg",
+      "tags": [
+        "lifestyle",
+        "motor"
+      ]
+    },
+    {
+      "name": "iPhone 3GS",
+      "sale": false,
+      "price": 50,
+      "photo": "iphone.jpg",
+      "tags": [
+        "lifestyle",
+        "mobile"
+      ]
+    },
+    {
+      "name": "Lavadora",
+      "sale": true,
+      "price": 130,
+      "photo": "lavadora.jpg",
+      "tags": [
+        "work"
+      ]
+    },
+    {
+      "name": "Reloj",
+      "sale": false,
+      "price": 25.5,
+      "photo": "reloj.jpg",
+      "tags": [
+        "lifestyle"
+      ]
+    },
+    {
+      "name": "Bicicleta Verde",
+      "sale": true,
+      "price": 175.10,
+      "photo": "bici_verde.jpg",
+      "tags": [
+        "lifestyle",
+        "motor"
+      ]
+    },
+    {
+      "name": "Auriculares",
+      "sale": true,
+      "price": 40.25,
+      "photo": "auriculares.jpg",
+      "tags": [
+        "work",
+        "lifestyle",
+        "mobile"
+      ]
+    }
+  ]
+}
