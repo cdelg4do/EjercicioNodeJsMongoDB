@@ -51,7 +51,7 @@ Petición POST a **/api/v1/pushtokens** con los siguientes parámetros en el *bo
 
 #### - Listado de tags del sistema:
 
-Petición GET a **/api/v1/tag** sin ningún parámetro en la *url* ni en el *body*.
+Petición GET a **/api/v1/tags** sin ningún parámetro en la *url* ni en el *body*.
 
 
 #### - Listado de anuncios:
