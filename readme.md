@@ -162,4 +162,4 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
       ]
     }
 
-
+**(El password desencriptado de los usuarios "Carlos" y "Pepe" es: 123456)**
