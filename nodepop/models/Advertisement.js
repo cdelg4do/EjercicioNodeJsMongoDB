@@ -19,4 +19,4 @@ var advertisementSchema = mongoose.Schema({
 
 
 // Asignar el esquema al modelo
-var User = mongoose.model('Advertisement', advertisementSchema);
+var Advertisement = mongoose.model('Advertisement', advertisementSchema);

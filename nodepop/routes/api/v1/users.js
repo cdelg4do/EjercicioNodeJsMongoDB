@@ -30,11 +30,15 @@ var checkBody = function (req, res, next)
     var lang = ( req.body.lang || 'en' );
 
     // Si falta alguno de los parámetros requeridos, devolver respuesta de error
-    if (!req.body.hasOwnProperty('name') ||
-        !req.body.hasOwnProperty('email') ||
-        !req.body.hasOwnProperty('password')
-    )
-    {
+    var missedParams = false;
+
+    for (var key in req.body) {
+
+        if (key != 'name' && key != 'email' && key != 'password' )
+            missedParams = true;
+    }
+
+    if (missedParams) {
         console.log('Se ha producido un error: CREATE_USER_MISSING_PARAMS');
         return errors.errorResponse('CREATE_USER_MISSING_PARAMS', 400, lang, res);
     }
@@ -56,10 +60,15 @@ var checkBody2 = function (req, res, next)
     var lang = ( req.body.lang || 'en' );
 
     // Si falta alguno de los parámetros requeridos, devolver respuesta de error
-    if (!req.body.hasOwnProperty('email') ||
-        !req.body.hasOwnProperty('password')
-    )
-    {
+    var missedParams = false;
+
+    for (var key in req.body) {
+
+        if (key != 'email' && key != 'password' )
+            missedParams = true;
+    }
+
+    if (missedParams) {
         console.log('Se ha producido un error: AUTH_USER_MISSING_PARAMS');
         return errors.errorResponse('AUTH_USER_MISSING_PARAMS', 400, lang, res);
     }

@@ -101,25 +101,6 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
     //includeTotal = req.query.includeTotal;
 
 
-    // Total de anuncios en la BBDD (si se indicó includetotal=true)
-    var advCount;
-
-    //if ( typeof req.query.includetotal !== undefined && req.query.includetotal === 'true' )
-    if (req.query.hasOwnProperty('includeTotal') && req.query.includeTotal=='true')
-    {
-        Advertisement.count({}, function(err, count)
-        {
-            if (err) {
-                console.log('Se ha producido un error: COUNT_ADS_DB_ERROR');
-                return errors.errorResponse('COUNT_ADS_DB_ERROR', 500, req.query.lang, res);
-            }
-
-            advCount = count;
-            console.log("Total de anuncios: ", advCount );
-        });
-    }
-
-
     // Criterios de búsqueda y ordenación (inicialmente vacíos)
     var searchCriteria = {};
     var sortCriteria = {};
@@ -145,7 +126,8 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
     {
         console.log("tags: ", req.query.tags );
 
-        searchCriteria.tags = req.query.tags;
+        var tagsArray = req.query.tags.split(',');
+        searchCriteria.tags = { $all: tagsArray };
     }
 
     if ( req.query.hasOwnProperty('name') ) {
@@ -187,27 +169,54 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
         skipCriteria = 0;
 
 
-    //Realizar la búsqueda según los criterios indicados
+    // Mostrar los criterios indicados
     console.log('Criterios de búsqueda: ', searchCriteria);
     console.log('Criterio de ordenación: ', sortCriteria);
     console.log("Comienzo: ", skipCriteria);
     console.log("Límite: ", limitCriteria);
+    var advCount;
 
-    Advertisement.find(searchCriteria).sort(sortCriteria).skip(skipCriteria).limit(limitCriteria).exec(function (err, rows)
-    {
-        if (err) {
-            console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
-            return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
-        }
 
-        // Devolver los resultados, incluyendo el total de anuncios si corresponde
-        if ( typeof advCount !== undefined) {
-            res.status(200).json({success: true, total: advCount, advertisements: rows});
-        }
-        else {
+    // If we have to include the total count of matches, we will need to execute 2 queries
+    if (req.query.hasOwnProperty('includeTotal') && req.query.includeTotal=='true') {
+
+        // First query (with filters but without pagination) to count all matches
+        Advertisement.find(searchCriteria).exec(function (err1, rows1) {
+            
+            if (err1) {
+                console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
+                return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
+            }
+
+            advCount = rows1.length;
+
+            // Second query: with filters, sorted and paginated
+            Advertisement.find(searchCriteria).sort(sortCriteria).skip(skipCriteria).limit(limitCriteria).exec(function (err2, rows2)
+            {
+                if (err2) {
+                    console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
+                    return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
+                }
+
+                res.status(200).json({success: true, total: advCount, advertisements: rows2});
+            });
+
+        });
+    }
+
+    // If no need to include the total count of matches, execute one query with all filters, sorted and paginated
+    else {
+
+        Advertisement.find(searchCriteria).sort(sortCriteria).skip(skipCriteria).limit(limitCriteria).exec(function (err, rows)
+        {
+            if (err) {
+                console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
+                return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
+            }
+
             res.status(200).json({success: true, advertisements: rows});
-        }
-    });
+        });
+    }
 
 });
 

@@ -27,10 +27,15 @@ var checkBody = function (req, res, next)
     var lang = ( req.body.lang || 'en' );
 
     // Si falta alguno de los parámetros requeridos, devolver respuesta de error
-    if (!req.body.hasOwnProperty('platform') ||
-        !req.body.hasOwnProperty('token')
-    )
-    {
+    var missedParams = false;
+
+    for (var key in req.body) {
+
+        if (key != 'platform' && key != 'token' && key != 'user')
+            missedParams = true;
+    }
+
+    if (missedParams) {
         console.log('Se ha producido un error: CREATE_PUSHTOKEN_MISSING_PARAMS');
         return errors.errorResponse('CREATE_PUSHTOKEN_MISSING_PARAMS', 400, lang, res);
     }
