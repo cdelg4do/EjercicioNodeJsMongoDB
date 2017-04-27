@@ -4,17 +4,18 @@ This is a small proptotype of a backend for an online shop where users can publi
 
 The project can be found inside the **/nodepop** folder of the repository.
 
+.
 ### Connection to the database:
 ---
 The database connection data is located inside the **/lib/dbConnect.js** file.
 
-
+.
 ### API ROUTES:
 ---
 
 #### - Download of static files:
 
-The static files of the app are located under the **/nodepop/public** folder. In particular, the endpoiont to retrieve the advertisement pictures is:
+The static files of the app are located under the **/nodepop/public** folder. In particular, the endpoint to retrieve the advertisement pictures is:
 
 [GET] request to **/images/advertisements/_<image_file>_**
 
@@ -69,11 +70,11 @@ The static files of the app are located under the **/nodepop/public** folder. In
 ### Note:
 **All API requests support an optional parameter **"lang"** (in the *URL* for GET requests, in the *body* for POST requests) with the language of the client, currently "en" & "es" are supported. This is useful to localize the error messages, for instance. If this parameter is not provided, or the value provided is not supported, English will be used by default.**
 
-
+.
 ### Initial data:
 ---
 
-The database can be populate using the script **install_db.js** located in the **/tools** folder.
+The database can be populated using the script **install_db.js** located in the **/tools** folder.
 
 To execute the script, just type from the /nodepop folder: **node ./tools/install_db.js**
 
