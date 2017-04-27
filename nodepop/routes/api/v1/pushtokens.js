@@ -1,5 +1,5 @@
 /*
- *  Controlador de tokens de push
+ *  Push tokens controller
  */
 
 "use strict";
@@ -11,22 +11,22 @@ var mongoose = require('mongoose');
 var Pushtoken = mongoose.model('Pushtoken');
 
 
-// Módulo para enviar respuestas con mensajes de error internacionalizados
+// Module to send responses with localized error messages
 var errors = require('../../../lib/errors');
 
 
-// Comprobación de los parámetros del cuerpo de la petición
+// Check the body params
 var checkBody = function (req, res, next)
 {
-    // Información de log sobre la petición recibida
-    console.log('\n* Petición POST a /pushtokens *');
-    console.log('Cuerpo:', req.body);
+    // Log info about the request
+    console.log('\n* POST request to /pushtokens *');
+    console.log('Body:', req.body);
 
 
-    // Idioma del cliente (si no se especificó ninguno, por defecto será 'en´)
+    // Client language (if no language is provided, 'en' will be used)
     var lang = ( req.body.lang || 'en' );
 
-    // Si falta alguno de los parámetros requeridos, devolver respuesta de error
+    // If there are missing parameters, return an error response
     var missedParams = false;
 
     for (var key in req.body) {
@@ -36,37 +36,38 @@ var checkBody = function (req, res, next)
     }
 
     if (missedParams) {
-        console.log('Se ha producido un error: CREATE_PUSHTOKEN_MISSING_PARAMS');
+        console.log('Error: CREATE_PUSHTOKEN_MISSING_PARAMS');
         return errors.errorResponse('CREATE_PUSHTOKEN_MISSING_PARAMS', 400, lang, res);
     }
 
-    // Si no se detectaron errores, pasamos al siguiente middleware
+    // If no errors detected, go to the next middleware
     next();
 };
 
 
-// Petición POST a /pushtokens para registrar un nuevo token de push en la BBDD.
-//
-// Primero se invoca a checkBody para comprobar que el cuerpo de la petición tiene los parámetros: platform y token (user es opcional)
-// Si los parámetros no son correctos, devolverá un JSON con mensaje de error y finaliza
-//
-// Si los parámetros son correctos, creará un nuevo token de push a partir del modelo de Pushtoken,
-// e intentará guardarlo en la base de datos
-//
-// Si la operación se realiza con éxito, devuelve un objeto JSON {success: true, saved: <objeto_guardado>}
-// y si no, devolverá un JSON con mensaje de error y finaliza
+// POST request to /pushtokens to register a new push token in the database.
+// 
+// First call to checkBody to make sure the request body has the params: platform, token and user (optional).
+// If not, return a JSON error response and quit.
+// 
+// If all params are correct, attempt to create a new push token from the Pushtoken model, and store it in the database.
+// 
+// If the operation succeeds, return a JSON response like {success: true, saved: <saved_object>}.
+// If not, return a JSON error response and quit.
+
 router.post('/', checkBody, function(req, res, next)
 {
-    // Si llegamos hasta aquí, es que la petición incluye los parámetros correctos
-    // así que podemos crear un nuevo token de push aplicando el cuerpo de la petición directamente al modelo
-    var pushtoken = new Pushtoken(req.body);
-    console.log('Nuevo objeto token de push:', pushtoken);
+    // If we are here, all params in the request were correct
 
-    // Guardar el objeto en la BBDD
+    // Create a new push token object by applying the request body directly to the model
+    var pushtoken = new Pushtoken(req.body);
+    console.log('New push token object:', pushtoken);
+
+    // Store the object in the database
     pushtoken.save(function (err, saved)
     {
         if (err) {
-            console.log('Se ha producido un error: CREATE_PUSHTOKEN_DB_ERROR');
+            console.log('Error: CREATE_PUSHTOKEN_DB_ERROR');
             return errors.errorResponse('CREATE_PUSHTOKEN_DB_ERROR', 500, req.body.lang, res);
         }
 
@@ -76,5 +77,5 @@ router.post('/', checkBody, function(req, res, next)
 });
 
 
-// Exportar el router
+// Export the router
 module.exports = router;

@@ -1,91 +1,85 @@
-# Práctica JS/Node.js/MongoDB de Carlos Delgado Andrés
+# NODEPOP, a simple Node.js backend
 
+This is a small proptotype of a backend for an online shop where users can publish advertisements to buy/sell articles. It is made with Node.js, Express.js and MongoDB. It also uses some other dependencies like Crypto (to encrypt the user passwords), JSONWebToken (for session control) or Mongoose (for MongoDB object modeling).
 
-### RAÍZ DE LA APLICACIÓN:
+The project can be found inside the **/nodepop** folder of the repository.
+
+### Connection to the database:
 ---
-El proyecto se encuentra dentro de la carpeta **/nodepop** del repositorio.
+The database connection data is located inside the **/lib/dbConnect.js** file.
 
 
-### CONEXIÓN A LA BBDD:
----
-
-Los datos de conexión a la base de datos se encuentran en el fichero **/lib/dbConnect.js**
-
-
-### RUTAS DE LA API:
+### API ROUTES:
 ---
 
+#### - Download of static files:
 
-##### - Descarga de ficheros estáticos (imágenes de los anuncios):
+The static files of the app are located under the **/nodepop/public** folder. In particular, the endpoiont to retrieve the advertisement pictures is:
 
-Acceder a la ruta **/images/advertisements/_<nombre_del_fichero>_** (petición GET).
-
-Consultar la sección **Datos Iniciales** más abajo para saber qué ficheros de imágen están accesibles en esta ruta (campo **photo** de cada elemento del array de **advertisements**).
-
-
-#### - Creación de usuarios:
-
-Petición POST a **/api/v1/users** con los siguientes parámetros en el *body*:
-
-* **name**: nombre del nuevo usuario
-* **email**: dirección de correo que identifica al nuevo usuario
-* **password**: contraseña del nuevo usuario
+[GET] request to **/images/advertisements/_<image_file>_**
 
 
-#### - Autenticación de usuarios:
+#### - User registration:
 
-Petición POST a **/api/v1/users/authenticate** con los siguientes parámetros en el *body*:
+[POST] request to **/api/v1/users** with the following *body* parameters:
 
-* **email**: dirección de correo que identifica al usuario
-* **password**: contraseña del usuario
-
-
-#### - Registrar un nuevo token de push:
-
-Petición POST a **/api/v1/pushtokens** con los siguientes parámetros en el *body*:
-
-* **platform**: plataforma del cliente (ej. ios, android)
-* **token**: token de push del cliente
-* **user**: id del usuario al que pertenece el token **(opcional)**
+* **name**: screen name for the new user
+* **email**: a unique email address (this will be the username)
+* **password**: password for the new user
 
 
-#### - Listado de tags del sistema:
+#### - User authentication:
 
-Petición GET a **/api/v1/tags** (sin ningún parámetro en la *url* ni en el *body*).
+[POST] request to **/api/v1/users/authenticate** with the following *body* parameters:
 
-
-#### - Listado de anuncios:
-
-Petición GET a **/api/v1/advertisements** con los siguientes parámetros en la *URL*:
-
-* Parámetros obligatorios:
-  * **token**: el token auth del usuario que hace la petición	(obligatorio)
+* **email**: user's email address
+* **password**: user's password
 
 
-* Filtros opcionales:
-  * **name**: texto por el que comienza el nombre del artículo
-  * **sale**: (true/false) indica si el artículo es de venta o no.
-  * **price**: filtro de precios (no implementado)
-  * **tags**: etiquetas del artículo
-  * **start**: nº del resultado inicial a devolver
-  * **limit**: nº de resultados que se devolverán, como máximo
-  * **includeTotal**: (true/false) indica si se incluye un campo adicional con el total de artículos en la respuesta.
+#### - Register a new push token (for push notifications):
+
+[POST] request to **/api/v1/pushtokens** with the following *body* parameters:
+
+* **platform**: client's platform (i.e. ios, android)
+* **token**: the client's push token
+* **user**: id of the user the token belongs to **(optional)**
 
 
-### Nota:
-**Para la internacionalización, todas las peticiones soportan un parámetro opcional "lang" (en la URL para peticiones GET, en el *body* para peticiones POST) con el lenguaje del cliente (en/es). Si no se especifica este parámetro o no es ninguno de esos dos, se usará el inglés como idioma por defecto.**
+#### - List of existing article tags:
+
+[GET] request to **/api/v1/tags**
 
 
-### DATOS INICIALES:
+#### - Advertisement search:
+
+[GET] request to **/api/v1/advertisements** with the following *URL* parameters:
+
+* Mandatory param:
+  * **token**: the JWT token of the user that is sending the request
+
+* Optional params:
+  * **name**: text to filter articles which name starts with it.
+  * **sale**: (true/false) to search articles for sale or demanded.
+  * **tags**: to search articles by tag (several tags can be used here, separated by comma).
+  * **start**: initial result to retrieve (useful to paginate results).
+  * **limit**: how many results should be retrieved (useful to paginate results).
+  * **includeTotal**: (true/false) to include the total number of matches or not (useful to paginate results).
+
+
+### Note:
+**All API requests support an optional parameter **"lang"** (in the *URL* for GET requests, in the *body* for POST requests) with the language of the client, currently "en" & "es" are supported. This is useful to localize the error messages, for instance. If this parameter is not provided, or the value provided is not supported, English will be used by default.**
+
+
+### Initial data:
 ---
 
-Puede poblarse la base de datos utilizando el script **install_db.js** de la carpeta **/tools** de la aplicación.
+The database can be populate using the script **install_db.js** located in the **/tools** folder.
 
-Para usar el script, ejecutar desde la carpeta raíz del proyecto: **node ./tools/install_db.js**
+To execute the script, just type from the /nodepop folder: **node ./tools/install_db.js**
 
-Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, cuyo contenido es el siguiente:
+Data will be loaded from the file **initial_data.json** located in the **/tools** folder, whose contents are as follows:
 
-	
+```json
     {
       "users": [
         {
@@ -101,7 +95,7 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
       ],
       "advertisements": [
         {
-          "name": "Bicicleta",
+          "name": "Bicycle",
           "sale": true,
           "price": 230.15,
           "photo": "bici.jpg",
@@ -121,7 +115,7 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
           ]
         },
         {
-          "name": "Lavadora",
+          "name": "Washing Machine",
           "sale": true,
           "price": 130,
           "photo": "lavadora.jpg",
@@ -130,7 +124,7 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
           ]
         },
         {
-          "name": "Reloj",
+          "name": "Clock",
           "sale": false,
           "price": 25.5,
           "photo": "reloj.jpg",
@@ -139,7 +133,7 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
           ]
         },
         {
-          "name": "Bicicleta Verde",
+          "name": "Bicycle (green)",
           "sale": true,
           "price": 175.10,
           "photo": "bici_verde.jpg",
@@ -149,7 +143,7 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
           ]
         },
         {
-          "name": "Auriculares",
+          "name": "Headphones",
           "sale": true,
           "price": 40.25,
           "photo": "auriculares.jpg",
@@ -161,5 +155,6 @@ Los datos se cargarán del fichero **initial_data.json** de esa misma carpeta, c
         }
       ]
     }
+```
 
-**(El password desencriptado de los usuarios "Carlos" y "Pepe" es: 123456)**
+**(The password for both default users "Carlos" & "Pepe" is: 123456)**

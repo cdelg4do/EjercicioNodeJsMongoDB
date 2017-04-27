@@ -1,5 +1,5 @@
 /*
- *  Modelo de usuarios del sistema
+ *  Model for system users
  */
 
 "use strict";
@@ -7,7 +7,7 @@
 var mongoose = require('mongoose');
 
 
-// Crear el esquema de un usuario
+// Schema for a user
 var userSchema = mongoose.Schema({
     email: {
         type: String,
@@ -23,5 +23,5 @@ var userSchema = mongoose.Schema({
 
 
 
-// Asignar el esquema al modelo
+// Assign the schema to the model
 var User = mongoose.model('User', userSchema);

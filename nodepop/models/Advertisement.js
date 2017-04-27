@@ -1,5 +1,5 @@
 /*
- *  Modelo de anuncios del sistema
+ *  Model for system advertisements
  */
 
 "use strict";
@@ -7,7 +7,7 @@
 var mongoose = require('mongoose');
 
 
-// Crear el esquema de un anuncio
+// Schema for an advertisement
 var advertisementSchema = mongoose.Schema({
     name: String,
     sale: Boolean,
@@ -18,5 +18,5 @@ var advertisementSchema = mongoose.Schema({
 
 
 
-// Asignar el esquema al modelo
+// Assign the schema to the model
 var Advertisement = mongoose.model('Advertisement', advertisementSchema);

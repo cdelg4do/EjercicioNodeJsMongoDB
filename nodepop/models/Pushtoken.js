@@ -1,5 +1,5 @@
 /*
- *  Modelo de tokens de push del sistema
+ *  Model for system push tokens
  */
 
 "use strict";
@@ -7,7 +7,7 @@
 var mongoose = require('mongoose');
 
 
-// Crear el esquema de un token de push
+// Schema for a push token
 var pushtokenSchema = mongoose.Schema({
     platform: {type: String, enum: ['ios', 'android']},
     token: {
@@ -20,5 +20,5 @@ var pushtokenSchema = mongoose.Schema({
 
 
 
-// Asignar el esquema al modelo
+// Assign the schema to the model
 var Pushtoken = mongoose.model('Pushtoken', pushtokenSchema);

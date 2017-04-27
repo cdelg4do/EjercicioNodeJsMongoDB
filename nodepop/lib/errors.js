@@ -1,12 +1,12 @@
 /*
- *  Módulo para gestionar las respuestas de error internacionalizadas
+ *  This module manages the localized error responses
  */
 
 "use strict";
 
 
-// Catálogo de errores en español e inglés
-// TODO: cargar el catálogo desde ficheros json
+// Available error messages (in Spanish & English)
+// TODO: load the messages from JSON files
 var errors_es = {
     "AUTH_USER_BAD_PASSWORD"            : "El password indicado es incorrecto",
     "AUTH_USER_DB_ERROR"                : "Fallo al buscar el usuario en la BBDD",
@@ -41,21 +41,22 @@ var errors_en = {
 
 
 
-// Función que devuelve una respuesta JSON con el mensaje de error traducido
-// ( {success: false, error : <mensaje>} )
+// This function returns a JSON response with the corresponding localized error message
+// ( {success: false, error : <message>} )
+
 var errorResponse = function (errorCode, statusCode, lang, res)
 {
-    // Mensaje de error que se devolverá en la respuesta
+    // Error message that will be returned
     var errorMsg;
 
-    // Determinar la colección de mensajes usar, en función del idioma: español o inglés (por defecto, en inglés)
+    // Determine the message collection to use, depending on the given lang parameter: Spanish or English (English by default)
     var errorMessages = errors_en;
     if (lang === 'es') {
         errorMessages = errors_es;
     }
 
-    // Buscar el código de error indicado en la colección de mensajes de error
-    // (si no existe, usaremos UNKNOWN_ERROR y se devolverá el status 500)
+    // Get the error message associated to the given error code
+    // (if the error code does not exist in the collection, 'UNKNOWN_ERROR' will be returned among a 500 response status)
     errorMsg = errorMessages[errorCode];
 
     if ( errorMsg === undefined) {
@@ -63,13 +64,12 @@ var errorResponse = function (errorCode, statusCode, lang, res)
         statusCode = 500;
     }
 
-
-    // Devolver el mensaje de error y el status correspondientes
+    // Return the error message and the given status code
     return res.status(statusCode).json( {success: false, error: errorMsg} );
 };
 
 
-// Exportar la función
+// Export the function
 module.exports.errorResponse = errorResponse;
 
 

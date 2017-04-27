@@ -13,7 +13,7 @@
   ],
   "advertisements": [
     {
-      "name": "Bicicleta",
+      "name": "Bicycle",
       "sale": true,
       "price": 230.15,
       "photo": "bici.jpg",
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "name": "Lavadora",
+      "name": "Washing Machine",
       "sale": true,
       "price": 130,
       "photo": "lavadora.jpg",
@@ -42,7 +42,7 @@
       ]
     },
     {
-      "name": "Reloj",
+      "name": "Clock",
       "sale": false,
       "price": 25.5,
       "photo": "reloj.jpg",
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "name": "Bicicleta Verde",
+      "name": "Bicycle (green)",
       "sale": true,
       "price": 175.10,
       "photo": "bici_verde.jpg",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "name": "Auriculares",
+      "name": "Headphones",
       "sale": true,
       "price": 40.25,
       "photo": "auriculares.jpg",

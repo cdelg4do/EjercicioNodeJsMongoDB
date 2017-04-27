@@ -1,5 +1,5 @@
 /*
- *  Controlador de anuncios
+ *  Advertisements controller
  */
 
 "use strict";
@@ -13,50 +13,48 @@ var Advertisement = mongoose.model('Advertisement');
 var jwt = require('jsonwebtoken');
 
 
-// Módulo para enviar respuestas con mensajes de error internacionalizados
+// Module to send responses with localized error messages
 var errors = require('../../../lib/errors');
 
 
-// Comprobación de los parámetros de la query string de la petición
+// Check the query params
 var checkQueryString = function (req, res, next)
 {
-    // Información de log sobre la petición recibida
-    console.log('\n* Petición GET a /advertisements *');
+    // Log info about the request
+    console.log('\n* GET request to /advertisements *');
     console.log('Query String:', req.query);
 
-    // Idioma del cliente (si no se especificó ninguno, por defecto será 'en´)
+    // Client language (if no language is provided, 'en' will be used)
     var lang = ( req.query.lang || 'en' );
 
-    // Si falta alguno de los parámetros requeridos, devolver respuesta de error
+    // If there are missing parameters, return an error response
     if ( !req.query.hasOwnProperty('token') )
     {
-        console.log('Se ha producido un error: LIST_ADS_QUERY_ERROR');
+        console.log('Error: LIST_ADS_QUERY_ERROR');
         return errors.errorResponse('LIST_ADS_QUERY_ERROR', 400, lang, res);
     }
 
-
-    // Si no se detectaron errores, pasamos al siguiente middleware
+    // If no errors detected, go to the next middleware
     next();
 };
 
 
-// Comprobación del token de autenticación facilitado por el usuario
+// Check the given auth token
 var checkToken = function (req, res, next)
 {
-    console.log('Chequeando token: ', req.query.token);
+    console.log('Checking auth token: ', req.query.token);
 
-    // Idioma del cliente (si no se especificó ninguno, por defecto será 'en´)
+    // Client language (if no language is provided, 'en' will be used)
     var lang = ( req.query.lang || 'en' );
-    
 
     jwt.verify(req.query.token, 'elkfbgti4e00t4ortng3035', function(err, decoded) {
        if (err)
        {
-           console.log('Se ha producido un error: UNAUTHORIZED_USER');
+           console.log('Error: UNAUTHORIZED_USER');
            return errors.errorResponse('UNAUTHORIZED_USER', 400, lang, res);
        }
 
-       // Si no hubo errores, pasamos al siguiente middleware
+        // If no errors detected, go to the next middleware
         next();
     });
 };
@@ -64,22 +62,25 @@ var checkToken = function (req, res, next)
 
 
 
-// Petición GET a /advertisements para listar los anuncios de la BBDD.
-//
-// Primero se invoca a checkQueryString para comprobar los parámetros de la query string,
-// Si los parámetros no son correctos, devolverá un JSON con mensaje de error y finaliza
-//
-// Si los parámetros son correctos, buscará anuncios en la BBDD que cumplan con los parámetros indicados.
-//
-// Si la operación se realiza con éxito, devuelve un objeto JSON {success: true, advertisements: [objeto1, objeto2, ...]}
-// Siademás se indicó el parámetro includeTotal=true, , devuelve {success: true, total: <total>, advertisements: [objeto1, objeto2, ...]}
-// y si no, devolverá un JSON con mensaje de error y finaliza
+// GET request to /advertisements to search for advertisements in the database.
+// 
+// First call to checkQueryString to make sure the request string has the correct params.
+// If not, return a JSON error response and quit.
+// 
+// Second, call to checkToken to validate the given auth token.
+// If the token is not valid, return a JSON error response and quit.
+// 
+// If all params are correct and the user authenticates successfully, attempt to search for advertisements in the database that match the given parameters.
+// 
+// If the operation succeeds, return a JSON response like {success: true, advertisements: [adv1, adv2, ...]}.
+// If the param includeTotal=true was provided, the JSON response will be like {success: true, total: <total_matches>, advertisements: [adv1, adv2, ...]}.
+// If the operation fails, return a JSON error response and quit.
+
 router.get('/', checkQueryString, checkToken, function(req, res, next)
 {
-    // Si llegamos hasta aquí, es que la petición incluye los parámetros necesarios
-    // así que podemos proceder con el listado
+    // If we are here, all params in the request were correct and the user authenticated successfully
 
-    // Parámetros de la petición (excepto lang)
+    // Request params (except lang)
     var token;
     var start;
     var limit;
@@ -88,7 +89,6 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
     var price;
     var name;
     var sortBy;
-    //var includeTotal;
 
     token = req.query.token;
     start = req.query.start;
@@ -98,10 +98,9 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
     price = req.query.price;
     name = req.query.name;
     sortBy = req.query.sortBy;
-    //includeTotal = req.query.includeTotal;
 
 
-    // Criterios de búsqueda y ordenación (inicialmente vacíos)
+    // Search and sort criteria (initially empty)
     var searchCriteria = {};
     var sortCriteria = {};
 
@@ -137,18 +136,18 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
         console.log("name regexp: ", searchCriteria.name )
     }
 
-    // TODO filtro de precios
+    // TODO filter by article price
     if ( req.query.hasOwnProperty('price') ) {
 
     }
 
 
-    // Límite de resultados devueltos
+    // Limit of returned results
     var limitCriteria;
     if ( req.query.hasOwnProperty('limit') ) {
         limitCriteria = parseInt(req.query.limit);
 
-        // Si el valor resultante es un NaN, hacerlo 0
+        // If the resulting value is a NaN, make it 0
         if(limitCriteria !== limitCriteria)
             limitCriteria = 0;
     }
@@ -156,12 +155,12 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
         limitCriteria = 0;
 
 
-    // Comienzo de los resultados devueltos
+    // Start of the returned results
     var skipCriteria;
     if ( req.query.hasOwnProperty('start') ) {
         skipCriteria = parseInt(req.query.start);
 
-        // Si el valor resultante es un NaN, hacerlo 0
+        // If the resulting value is a NaN, make it 0
         if (skipCriteria !== skipCriteria)
             skipCriteria = 0;
     }
@@ -169,11 +168,11 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
         skipCriteria = 0;
 
 
-    // Mostrar los criterios indicados
-    console.log('Criterios de búsqueda: ', searchCriteria);
-    console.log('Criterio de ordenación: ', sortCriteria);
-    console.log("Comienzo: ", skipCriteria);
-    console.log("Límite: ", limitCriteria);
+    // Show all the criteria in the log
+    console.log('Search criteria: ', searchCriteria);
+    console.log('Sort criteria: ', sortCriteria);
+    console.log("Start: ", skipCriteria);
+    console.log("Limit: ", limitCriteria);
     var advCount;
 
 
@@ -184,7 +183,7 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
         Advertisement.find(searchCriteria).exec(function (err1, rows1) {
             
             if (err1) {
-                console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
+                console.log('Error: LIST_ADS_DB_ERROR');
                 return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
             }
 
@@ -194,7 +193,7 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
             Advertisement.find(searchCriteria).sort(sortCriteria).skip(skipCriteria).limit(limitCriteria).exec(function (err2, rows2)
             {
                 if (err2) {
-                    console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
+                    console.log('Error: LIST_ADS_DB_ERROR');
                     return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
                 }
 
@@ -210,7 +209,7 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
         Advertisement.find(searchCriteria).sort(sortCriteria).skip(skipCriteria).limit(limitCriteria).exec(function (err, rows)
         {
             if (err) {
-                console.log('Se ha producido un error: LIST_ADS_DB_ERROR');
+                console.log('Error: LIST_ADS_DB_ERROR');
                 return errors.errorResponse('LIST_ADS_DB_ERROR', 500, req.query.lang, res);
             }
 
@@ -221,5 +220,5 @@ router.get('/', checkQueryString, checkToken, function(req, res, next)
 });
 
 
-// Exportar el router
+// Export the router
 module.exports = router;

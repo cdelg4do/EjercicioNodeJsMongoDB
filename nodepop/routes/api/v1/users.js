@@ -1,5 +1,5 @@
 /*
- *  Controlador de usuarios
+ *  Users controller
  */
 
 "use strict";
@@ -14,22 +14,22 @@ var crypto = require('crypto');
 
 var jwt = require('jsonwebtoken');
 
-// Módulo para enviar respuestas con mensajes de error internacionalizados
+// Module to send responses with localized error messages
 var errors = require('../../../lib/errors');
 
 
-// Comprobación de los parámetros del cuerpo de la petición (nuevo usuario)
+// Check the body params (new user)
 var checkBody = function (req, res, next)
 {
-    // Información de log sobre la petición recibida
-    console.log('\n* Petición POST a /users *');
-    console.log('Cuerpo:', req.body);
+    // Log info about the request
+    console.log('\n* POST request to /users *');
+    console.log('Body:', req.body);
 
 
-    // Idioma del cliente (si no se especificó ninguno, por defecto será 'en´)
+    // Client language (if no language is provided, 'en' will be used)
     var lang = ( req.body.lang || 'en' );
 
-    // Si falta alguno de los parámetros requeridos, devolver respuesta de error
+    // If there are missing parameters, return an error response
     var missedParams = false;
 
     for (var key in req.body) {
@@ -39,27 +39,27 @@ var checkBody = function (req, res, next)
     }
 
     if (missedParams) {
-        console.log('Se ha producido un error: CREATE_USER_MISSING_PARAMS');
+        console.log('Error: CREATE_USER_MISSING_PARAMS');
         return errors.errorResponse('CREATE_USER_MISSING_PARAMS', 400, lang, res);
     }
 
-    // Si no se detectaron errores, pasamos al siguiente middleware
+    // If no errors detected, go to the next middleware
     next();
 };
 
 
-// Comprobación de los parámetros del cuerpo de la petición (autenticación)
+// Check the body params (user authentication)
 var checkBody2 = function (req, res, next)
 {
-    // Información de log sobre la petición recibida
-    console.log('\n* Petición POST a /users/authenticate *');
-    console.log('Cuerpo:', req.body);
+    // Log info about the request
+    console.log('\n* POST request to /users/authenticate *');
+    console.log('Body:', req.body);
 
 
-    // Idioma del cliente (si no se especificó ninguno, por defecto será 'en´)
+    // Client language (if no language is provided, 'en' will be used)
     var lang = ( req.body.lang || 'en' );
 
-    // Si falta alguno de los parámetros requeridos, devolver respuesta de error
+    // If there are missing parameters, return an error response
     var missedParams = false;
 
     for (var key in req.body) {
@@ -69,49 +69,49 @@ var checkBody2 = function (req, res, next)
     }
 
     if (missedParams) {
-        console.log('Se ha producido un error: AUTH_USER_MISSING_PARAMS');
+        console.log('Error: AUTH_USER_MISSING_PARAMS');
         return errors.errorResponse('AUTH_USER_MISSING_PARAMS', 400, lang, res);
     }
 
-    // Si no se detectaron errores, pasamos al siguiente middleware
+    // If no errors detected, go to the next middleware
     next();
 };
 
 
-// Petición POST a /users para registrar nuevos usuarios en la BBDD.
-//
-// Primero se invoca a checkBody para comprobar que el cuerpo de la petición tiene los parámetros: name, email y password
-// Si los parámetros no son correctos, devolverá un JSON con mensaje de error y finaliza
-//
-// Si los parámetros son correctos, creará un nuevo usuario a partir del modelo de Usuario,
-// e intentará guardarlo en la base de datos
-//
-// Si la operación se realiza con éxito, devuelve un objeto JSON {success: true, saved: <objeto_guardado>}
-// y si no, devolverá un JSON con mensaje de error y finaliza
+// POST request to /users to register new users in the database.
+// 
+// First call to checkBody to make sure the request body has the params: name, email, password.
+// If not, return a JSON error response and quit.
+// 
+// If all params are correct, attempt to create a new user from the User model, and store it in the database.
+// 
+// If the operation succeeds, return a JSON response like {success: true, saved: <saved_object>}.
+// If not, return a JSON error response and quit.
+
 router.post('/', checkBody, function(req, res, next)
 {
-    // Si llegamos hasta aquí, es que la petición incluye los parámetros correctos
+    // If we are here, all params in the request were correct
 
-    // Cifrar el password recibido
+    // Encrypt the given passowrd
     var cipher = crypto.createCipher('aes-256-ctr','e957htsA');
     var cryptedPassword = cipher.update(req.body.password,'utf8','hex');
     cryptedPassword += cipher.final('hex');
 
-    // Crear un nuevo usuario aplicando el cuerpo de la petición directamente al modelo
+    // Create a new user object by applying the request body directly to the model
     var user = new User(req.body);
 
-    // Actualizar el password del objeto (cambiarlo por el cifrado)
+    // Store the encrypted passowrd in the object
     user['password'] = cryptedPassword;
 
-    console.log('Nuevo objeto usuario:', user);
+    console.log('New User object:', user);
 
 
 
-    // Guardar el objeto en la BBDD
+    // Store the object in the database
     user.save(function (err, saved)
     {
         if (err) {
-            console.log('Se ha producido un error: CREATE_USER_DB_ERROR');
+            console.log('Error: CREATE_USER_DB_ERROR');
             return errors.errorResponse('CREATE_USER_DB_ERROR', 500, req.body.lang, res);
         }
 
@@ -121,44 +121,53 @@ router.post('/', checkBody, function(req, res, next)
 });
 
 
+// POST request to /authenticate to authenticate an existing user in the system.
+// 
+// First call to checkBody2 to make sure the request body has the params: email, password.
+// If not, return a JSON error response and quit.
+// 
+// If all params are correct, check that the given passowrd corresponds to the given user.
+// 
+// If the operation succeeds, return a JSON response like {success: true, token: <new_JWT_token>}.
+// If not, return a JSON error response and quit.
 
 router.post('/authenticate', checkBody2, function(req, res, next)
 {
-    // Si llegamos hasta aquí, es que la petición incluye los parámetros correctos
+    // If we are here, all params in the request were correct
 
-    // Cifrar el password recibido
+    // Encrypt the given passowrd
     var cipher = crypto.createCipher('aes-256-ctr','e957htsA');
     var cryptedPassword = cipher.update(req.body.password,'utf8','hex');
     cryptedPassword += cipher.final('hex');
     
-    // Obtener el password cifrado del usuario correspondiente
+    // Get the encrypted passowrd of the user stored in the database
     var searchCriteria = {};
     searchCriteria.email = req.body.email;
     
     User.find(searchCriteria).exec(function (err, rows)
     {
         if (err) {
-            console.log('Se ha producido un error: AUTH_USER_DB_ERROR');
+            console.log('Error: AUTH_USER_DB_ERROR');
             return errors.errorResponse('AUTH_USER_DB_ERROR', 500, req.query.lang, res);
         }
 
-        // Comprobar si existe el usuario
+        // Check if the given user exists in the database
         if (rows.length != 1) {
-            console.log('Se ha producido un error: AUTH_USER_UNKNOWN');
+            console.log('Error: AUTH_USER_UNKNOWN');
             return errors.errorResponse('AUTH_USER_UNKNOWN', 500, req.query.lang, res);
         }
 
         console.log('bbdd_pw: ', rows[0].password);
 
-        // Comprobar si los password coinciden
+        // Check if both encrypted passwords match
         if ( cryptedPassword != rows[0].password )
         {
-            console.log('Se ha producido un error: AUTH_USER_BAD_PASSWORD');
+            console.log('Error: AUTH_USER_BAD_PASSWORD');
             return errors.errorResponse('AUTH_USER_BAD_PASSWORD', 500, req.query.lang, res);
         }
 
+        // Generate a new JWT token and send it back to the client
         var authToken = jwt.sign({id: rows[0]._id}, 'elkfbgti4e00t4ortng3035', { expiresIn : '2 days'});
-
         res.status(201).json({success: true, token: authToken});
     });
     
@@ -166,5 +175,5 @@ router.post('/authenticate', checkBody2, function(req, res, next)
 
 
 
-// Exportar el router
+// Export the router
 module.exports = router;

@@ -6,11 +6,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 
-// Conexión a la BBDD con mongoose
+// Connect to the database with mongoose
 require('./lib/dbConnect');
 
 
-// Modelos
+// Models
 require('./models/User');
 require('./models/Advertisement');
 require('./models/Pushtoken');
@@ -31,12 +31,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//enlaza la ruta virtual /imagenes con ./public/images/
-//app.use('/imagenes', express.static(path.join(__dirname, 'public/images')));
-
 app.use('/', require('./routes/index') );
 
-// Rutas de la API
+// API routes
 app.use('/api/v1/users', require('./routes/api/v1/users'));
 app.use('/api/v1/pushtokens', require('./routes/api/v1/pushtokens'));
 app.use('/api/v1/tags', require('./routes/api/v1/tags'));

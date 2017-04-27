@@ -1,14 +1,14 @@
 /*
- * Script de carga de datos en mongodb desde un fichero initial_data.json
+ * Script to load the initial data into MongoDB, from a file  initial_data.json
  * 
- * Desde la raíz del proyecto, ejecutar:    node ./tools/install_db.js
+ * From the project root folder, execute:    node ./tools/install_db.js
  */
 "use strict";
 
 var async = require('async');
 var mongoose = require('mongoose');
 
-// Modelos de la BBDD
+// Database models
 require('../models/User');
 require('../models/Advertisement');
 require('../models/Pushtoken');
@@ -18,15 +18,15 @@ var Advertisement = mongoose.model('Advertisement');
 var Pushtoken = mongoose.model('Pushtoken');
 
 
-// Url de la BBDD y ruta del fichero de datos
+// Database URL and path to the intial data file
 var dbUrl = 'mongodb://localhost:27017/nodepop';
 var jsonFile = './tools/initial_data.json';
 
 
-// Conexión con la BBDD
+// Connect to the database
 mongoose.connect(dbUrl);
 
-// Cerrar la conexión de mongoose cuando el usuario pulse Control-C
+// Close the connection to the database when the user press Control-C
 process.on('SIGINT', function() {
     mongoose.connection.close(function () {
         console.log('Se ha cerrado la conexión de mongoose!');
@@ -35,7 +35,7 @@ process.on('SIGINT', function() {
 });
 
 
-// Cargar datos iniciales del fichero
+// Load the initial data from the file
 var fs = require('fs');
 var jsonData;
 
@@ -45,99 +45,99 @@ fs.readFile(jsonFile, 'utf8', function (err, dat)
         throw err;
 
     jsonData = JSON.parse(dat);
-    //console.log('Datos cargados:', jsonData);
+    //console.log('Loaded data:', jsonData);
 });
 
 
 
-// Eliminar los tokens de push que ya existían en la BBDD
+// Remove all existing push tokens from the database
 var deletePushtokens = function(cb)
 {
-    console.log('Eliminando tokens de push existentes...');
+    console.log('Removing previous push tokens...');
 
     Pushtoken.remove({}, function(error, response) {
         if (error)
         {
-            console.log('Error al borrar los tokens de push: ' + error);
+            console.log('Error removing the push tokens: ' + error);
         }
 
-        console.log('Terminado');
+        console.log('Done');
         cb();
     });
 };
 
 
-// Eliminar los usuarios que ya existían en la BBDD
+// Remove all existing users from the database
 var deleteUsers = function(cb)
 {
-    console.log('Eliminando usuarios existentes...');
+    console.log('Removing previous users...');
 
     User.remove({}, function(error, response) {
         if (error)
         {
-            console.log('Error al borrar los usuarios: ' + error);
+            console.log('Error removing the users: ' + error);
         }
 
-        console.log('Terminado');
+        console.log('Done');
         cb();
     });
 };
 
-// Añadir los usuarios iniciales
+// Add the initual users
 var addUsers = function(cb)
 {
-    console.log('Añadiendo usuarios iniciales...');
+    console.log('Adding initial users...');
 
     User.create(jsonData.users, function (error) {
         if (error)
         {
-            console.log('Error al añadir los usuarios: ' + error);
+            console.log('Error adding users: ' + error);
             return;
         }
 
-        console.log('Terminado');
+        console.log('Done');
         cb();
     });
 };
 
 
-// Eliminar los anuncios que ya existían
+// Remove all existing advertisements
 var deleteAdvertisements = function(cb)
 {
-    console.log('Eliminando anuncios existentes...');
+    console.log('Removing previous advertisements...');
 
     Advertisement.remove({}, function(error, response) {
         if (error)
         {
-            console.log('Error al borrar los anuncios: ' + error);
+            console.log('Error removing advertisements: ' + error);
         }
 
-        console.log('Terminado');
+        console.log('Done');
         cb();
     });
 };
 
-// Añadir los anuncios iniciales
+// Add the initial advertisements
 var addAdvertisements = function(cb)
 {
-    console.log('Añadiendo anuncios iniciales...');
+    console.log('Adding initial advertisements...');
 
     Advertisement.create(jsonData.advertisements, function (error) {
         if (error)
         {
-            console.log('Error al añadir los anuncios: ' + error);
+            console.log('Error adding advertisements: ' + error);
             return;
         }
 
-        console.log('Terminado');
+        console.log('Done');
         cb();
     });
 };
 
 
-// Ejecuta todas las tareas de eliminación y carga de datos en la BBDD
+// Execute all the remove and load tasks
 
-console.log('\n* Restaurando datos iniciales en la BBDD *');
+console.log('\n* Restoring database intial contents *');
 
 async.series([
     deletePushtokens,
@@ -152,5 +152,5 @@ async.series([
     }
 
     mongoose.connection.close();
-    console.log('Cerrada la conexión con la BBDD');
+    console.log('Closed connection to the database');
 });
